@@ -18,3 +18,4 @@ romfs:
 	$(INSTALL_BIN) ./smartdns.sh $(ROMFSDIR)/usr/bin/smartdns.sh
 	$(INSTALL_DIR) $(ROMFSDIR)/etc_ro
 	$(INSTALL_DATA) ./conf/*.conf $(ROMFSDIR)/etc_ro/
+	$(INSTALL_BIN) ./update-china-list.sh $(ROMFSDIR)/usr/bin/update-china-list.sh
