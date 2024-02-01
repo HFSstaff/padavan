@@ -152,7 +152,7 @@ Get_sdns_conf () {
     fi
     if [ "$sdns_cache_persist" -eq 1 ] && [ "$snds_cache" -gt 0 ] ;then
         echo "cache-persist yes" >> "$smartdns_tmp_Conf"
-        echo "cache-file /etc/storage/smartdns.cache" >> "$smartdns_tmp_Conf"    
+        # echo "cache-file /etc/storage/smartdns.cache" >> "$smartdns_tmp_Conf"    
     else
         echo "cache-persist no" >> "$smartdns_tmp_Conf"
     fi
