@@ -31,7 +31,7 @@ if [ -n "$fsz" ] && [ $fsz -ge 1000000 ] ; then
 
 	#restart_dns
 
-	#rm -rf /tmp/smartdns.cache
+	rm -rf /tmp/smartdns.cache
 
 	/usr/bin/smartdns.sh start
 	# smartdns -c /etc_ro/smartdns_custom.conf
