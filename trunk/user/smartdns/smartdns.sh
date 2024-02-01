@@ -487,7 +487,7 @@ Stop_smartdns () {
     Change_adbyby
     Change_dnsmasq
     Change_iptable
-    ipset -X smartdns
+    ipset -X smartdns >/dev/null
     if [ "$dnsmasq_md5" != $(md5sum  "$dnsmasq_Conf" | awk '{ print $1 }') ] && [ "$sdns_enable" = 0 ] ; then
          /sbin/restart_dhcpd >/dev/null 2>&1
     fi
