@@ -496,12 +496,13 @@ Stop_smartdns () {
 
         if [ $LOOP -gt 12 ]; then
             kill -9 "$PID"
+            logger -t "SmartDNS" "强制结束smartdns进程 ．．．"
             break;
         fi
         LOOP=$((LOOP+1))
-        sleep .5
+        sleep 1
     done
-    logger -t "SmartDNS" "结束smartdns进程 ．．．"
+    logger -t "SmartDNS" "已结束smartdns进程 ．．．"
     Change_adbyby
     Change_dnsmasq
     Change_iptable
