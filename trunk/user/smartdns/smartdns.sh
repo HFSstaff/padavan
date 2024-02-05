@@ -448,7 +448,8 @@ Start_smartdns () {
          /sbin/restart_dhcpd >/dev/null 2>&1
     fi
     # 启动 smartdns 进程
-    "$smartdns_Bin" -f -c "$smartdns_Conf" "$args"  &>/dev/null &
+    # "$smartdns_Bin" -f -c "$smartdns_Conf" "$args"  &>/dev/null &
+    "$smartdns_Bin" -c "$smartdns_Conf" "$args"
     sleep 1
     smartdns_process=$(pidof smartdns | awk '{ print $1 }')
     if [ "$smartdns_process"x = x ] ; then
@@ -481,8 +482,25 @@ Start_smartdns () {
 
 
 Stop_smartdns () {
-    # 【】
-    killall -9 smartdns >/dev/null 2>&1
+    # killall -9 smartdns >/dev/null 2>&1
+    PID=$(pidof smartdns | awk '{ print $1 }')
+    kill -TERM "$PID"
+    if [ $? -ne 0 ]; then
+         logger -t "SmartDNS" "结束smartdns进程失败 ．．．"
+    fi
+    LOOP=1
+    while true; do
+        if [ ! -d "/proc/$PID" ]; then
+            break;
+        fi
+
+        if [ $LOOP -gt 12 ]; then
+            kill -9 "$PID"
+            break;
+        fi
+        LOOP=$((LOOP+1))
+        sleep .5
+    done
     logger -t "SmartDNS" "结束smartdns进程 ．．．"
     Change_adbyby
     Change_dnsmasq
