@@ -484,25 +484,29 @@ Start_smartdns () {
 Stop_smartdns () {
     # killall -9 smartdns >/dev/null 2>&1
     PID=$(pidof smartdns | awk '{ print $1 }')
-    kill -TERM "$PID"
-    if [ $? -ne 0 ]; then
-         logger -t "SmartDNS" "结束smartdns进程失败 ．．．"
-    fi
-    LOOP=1
-    while true; do
-        if [ ! -d "/proc/$PID" ]; then
-            break;
+    if [ "$PID"x != x ] ; then
+        kill -TERM "$PID"
+        if [ $? -ne 0 ]; then
+            logger -t "SmartDNS" "结束smartdns进程失败 ．．．"
         fi
+        LOOP=1
+        while true; do
+            if [ ! -d "/proc/$PID" ]; then
+                break;
+            fi
 
-        if [ $LOOP -gt 12 ]; then
-            kill -9 "$PID"
-            logger -t "SmartDNS" "强制结束smartdns进程 ．．．"
-            break;
-        fi
-        LOOP=$((LOOP+1))
-        sleep 1
-    done
-    logger -t "SmartDNS" "已结束smartdns进程 ．．．"
+            if [ $LOOP -gt 12 ]; then
+                kill -9 "$PID"
+                logger -t "SmartDNS" "强制结束smartdns进程 ．．．"
+                break;
+            fi
+            LOOP=$((LOOP+1))
+            sleep 1
+        done
+        logger -t "SmartDNS" "已成功结束smartdns进程 ．．．"
+    else
+        logger -t "SmartDNS" "smartdns进程未运行，无需结束进程 ．．．"
+    fi
     Change_adbyby
     Change_dnsmasq
     Change_iptable
