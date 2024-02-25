@@ -1183,6 +1183,7 @@
 			{"sdns_ttl", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_ttl_min", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_ttl_max", "", NULL, EVM_RESTART_SMARTDNS},
+			{"sdns_auto_restart", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_coredump", "", NULL, EVM_RESTART_SMARTDNS},	
 			{"sdnss_staticnum_x", "", NULL, EVM_RESTART_SMARTDNS},
 			{"sdns_speed", "", NULL, EVM_RESTART_SMARTDNS},
