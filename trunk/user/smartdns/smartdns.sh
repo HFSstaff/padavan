@@ -47,6 +47,7 @@ sdnse_cache=$(nvram get sdnse_cache)
 ss_white=$(nvram get ss_white)
 ss_black=$(nvram get ss_black)
 sdns_coredump=$(nvram get sdns_coredump)
+sdns_auto_restart=$(nvram get sdns_auto_restart)
 
 adbyby_process=$(pidof adbyby | awk '{ print $1 }')
 smartdns_process=$(pidof smartdns | awk '{ print $1 }')
@@ -440,8 +441,13 @@ Start_smartdns () {
     # 配置文件去重
     awk '!x[$0]++' "$smartdns_tmp_Conf" > "$smartdns_Conf"
     rm -f "$smartdns_tmp_Conf"
+    if [ "$sdns_auto_restart" = "1" ] ; then
+        args="$args -R"
+    fi
     if [ "$sdns_coredump" = "1" ] ; then
         args="$args -S"
+        # enable coredump, 默认值是 "ulimit -c 0"
+        ulimit -c unlimited >/dev/null 2>&1
     fi
     # 通过检测配置文件是否变化，确定是否重启 dnsmasq 进程
     if [ "$dnsmasq_md5" != $(md5sum  "$dnsmasq_Conf" | awk '{ print $1 }') ] ; then
