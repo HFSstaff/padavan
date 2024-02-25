@@ -803,6 +803,7 @@ struct nvram_pair router_defaults[] = {
 	{ "sdns_ttl", "300" },
 	{ "sdns_ttl_min", "300" },
 	{ "sdns_ttl_max", "600" },
+	{ "sdns_auto_restart", "0" },
 	{ "sdns_coredump", "0" },
 	{ "sdnss_staticnum_x", "0" },
 	{ "sdns_speed", "0" },
