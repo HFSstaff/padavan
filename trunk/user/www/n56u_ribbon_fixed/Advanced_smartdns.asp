@@ -47,6 +47,7 @@ $j(document).ready(function(){
 	init_itoggle('sdnse_ipset');
 	init_itoggle('sdns_ipset');
 	init_itoggle('sdnse_cache');
+	init_itoggle('sdns_auto_restart');
 	init_itoggle('sdns_coredump');
 	init_itoggle('ss_black');
 	init_itoggle('ss_white');
@@ -857,8 +858,22 @@ function showMRULESList(){
 												</div>
 											</td>
 										</tr>
-										<tr> <th>生成coredump
-										</th>
+                                        <tr> <th>异常自动重启(进程故障时，自动重启进程)
+                                        </th>
+                                            <td>
+                                                <div class="main_itoggle">
+                                                <div id="sdns_auto_restart_on_of">
+                                                    <input type="checkbox" id="sdns_auto_restart_fake" <% nvram_match_x("", "sdns_auto_restart", "1", "value=1 checked"); %><% nvram_match_x("", "sdns_auto_restart", "0", "value=0"); %>>
+                                                </div>
+                                                </div>
+                                                <div style="position: absolute; margin-left: -10000px;">
+                                                    <input type="radio" value="1" name="sdns_auto_restart" id="sdns_auto_restart_1" <% nvram_match_x("", "sdns_auto_restart", "1", "checked"); %>><#checkbox_Yes#>
+                                                    <input type="radio" value="0" name="sdns_auto_restart" id="sdns_auto_restart_0" <% nvram_match_x("", "sdns_auto_restart", "0", "checked"); %>><#checkbox_No#>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr> <th>生成coredump(进程故障时，生成coredump文件，用于调试定位)
+                                        </th>
                                             <td>
                                                 <div class="main_itoggle">
                                                 <div id="sdns_coredump_on_of">
@@ -870,7 +885,6 @@ function showMRULESList(){
                                                     <input type="radio" value="0" name="sdns_coredump" id="sdns_coredump_0" <% nvram_match_x("", "sdns_coredump", "0", "checked"); %>><#checkbox_No#>
                                                 </div>
                                             </td>
-											
                                         </tr>
 										</table>
 										</div>										
