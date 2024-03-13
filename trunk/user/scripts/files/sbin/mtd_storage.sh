@@ -523,21 +523,13 @@ EOF
 EOF
 	fi
 
- 	if [ -f /usr/bin/smartdns ]; then
 		cat >> "$user_dnsmasq_conf" <<EOF
-### smartdns
-#port=0
-#server=::1#8051
-#no-resolv
-#server=127.0.0.1#8051
-
 #no-resolv
 #server=192.168.2.110
 #cache-size=0
 
 EOF
-	fi
- 
+
 		chmod 644 "$user_dnsmasq_conf"
 	fi
 
