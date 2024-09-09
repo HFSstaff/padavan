@@ -593,7 +593,8 @@ setkernel_tz(void)
 	settimeofday(tvp, &tz);
 }
 
-#if defined (BOARD_K2P)
+#if 0
+// #if defined (BOARD_K2P)
 static void led_control(int gpio_led, int flag);
 
 void 
