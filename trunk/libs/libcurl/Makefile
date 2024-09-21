@@ -27,6 +27,7 @@ CONFIGURE_ARGS += \
 	--disable-dict \
 	--disable-ares \
 	--disable-debug \
+	--disable-docs \
 	--disable-curldebug \
 	--disable-manual \
 	--disable-verbose \
@@ -39,6 +40,7 @@ CONFIGURE_ARGS += \
 	--without-krb4 \
 	--without-nss \
 	--without-ca-path \
+	--without-libpsl \
 	--with-ca-bundle=/etc/ssl/certs/ca-certificates.crt \
 	--with-random=/dev/urandom \
 	--with-zlib=$(STAGING_DIR) \
