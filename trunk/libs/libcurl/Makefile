@@ -1,11 +1,11 @@
 include $(ROOTDIR)/rules.mk
 
 PKG_NAME:=curl
-PKG_VERSION:=8.10.1
+PKG_VERSION:=8.21.0
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/curl/curl/releases/download/curl-$(subst .,_,$(PKG_VERSION))/
-PKG_HASH:=73a4b0e99596a09fa5924a4fb7e4b995a85fda0d18a2c02ab9cf134bebce04ee
+PKG_HASH:=aa1b66a70eace83dc624508745646c08ae561de512ab403adffb93ac87fc72e6
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -25,26 +25,28 @@ CONFIGURE_ARGS += \
 	--disable-imap \
 	--disable-sspi \
 	--disable-dict \
+	--disable-mqtt \
+	--disable-smb \
+	--disable-websockets \
 	--disable-ares \
 	--disable-debug \
 	--disable-docs \
-	--disable-curldebug \
 	--disable-manual \
 	--disable-verbose \
 	--disable-tls-srp \
 	--disable-libcurl-option \
 	--disable-threaded-resolver \
+	--without-brotli \
 	--without-gnutls \
-	--without-libidn \
+	--without-libidn2 \
+	--without-nghttp2 \
 	--without-libssh2 \
-	--without-krb4 \
-	--without-nss \
 	--without-ca-path \
 	--without-libpsl \
+	--without-zstd \
 	--with-ca-bundle=/etc/ssl/certs/ca-certificates.crt \
-	--with-random=/dev/urandom \
 	--with-zlib=$(STAGING_DIR) \
-	--with-ssl=$(STAGING_DIR)
+	--with-openssl=$(STAGING_DIR)
 
 define update_curl_config_prefix
 	$(SED) 's,^\(prefix\|exec_prefix\)=.*,\1=$(STAGING_DIR)/usr,g' $(STAGING_DIR)/bin/curl-config
