@@ -565,6 +565,9 @@ void upnpevents_selectfds(fd_set *readset, fd_set *writeset, int * max_fd)
 				upnp_event_notify_connect(obj);
 				if(obj->state != EConnecting)
 					break;
+#if defined(__GNUC__) && (__GNUC__ >= 7)
+				__attribute__ ((fallthrough));
+#endif
 			case EConnecting:
 			case ESending:
 				FD_SET(obj->s, writeset);
@@ -663,4 +666,3 @@ void write_events_details(int s) {
 #endif
 
 #endif
-
