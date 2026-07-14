@@ -51,7 +51,7 @@ mkdir -p -m 777 /tmp/rc_action_incomplete
 mkdir -p -m 700 /home/root
 mkdir -p -m 700 /home/root/.ssh
 mkdir -p -m 755 /etc/storage
-mkdir -p -m 755 /etc/ssl
+mkdir -p -m 755 /etc/ssl/certs
 mkdir -p -m 755 /etc/Wireless
 mkdir -p -m 750 /etc/Wireless/RT2860
 mkdir -p -m 750 /etc/Wireless/iNIC
@@ -78,10 +78,25 @@ fi
 # extract storage files
 mtd_storage.sh load
 
+# Initialize SmartDNS-owned configuration before autostart.  This avoids the
+# first-boot race between the asynchronous copy and autostart scripts.
+for config_name in smartdns_address.conf smartdns_blacklist-ip.conf smartdns_whitelist-ip.conf smartdns_custom.conf; do
+	if [ ! -f "/etc/storage/$config_name" ] && [ -f "/etc_ro/$config_name" ]; then
+		cp -f "/etc_ro/$config_name" "/etc/storage/$config_name"
+	fi
+done
+
 touch /etc/resolv.conf
 
 if [ -f /etc_ro/openssl.cnf ]; then
 	cp -f /etc_ro/openssl.cnf /etc/ssl
+fi
+
+# Keep the public CA store in read-only ROMFS.  TLS clients can use either
+# OpenSSL's default cert.pem path or the Debian-style bundle path.
+if [ -s /etc_ro/ssl/certs/ca-certificates.crt ]; then
+	ln -sf /etc_ro/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+	ln -sf certs/ca-certificates.crt /etc/ssl/cert.pem
 fi
 
 # create symlinks
@@ -118,4 +133,3 @@ fi
 if [ -x /etc/storage/start_script.sh ] ; then
 	/etc/storage/start_script.sh
 fi
-
