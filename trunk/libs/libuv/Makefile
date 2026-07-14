@@ -1,11 +1,11 @@
 include $(ROOTDIR)/rules.mk
 
 PKG_NAME:=libuv
-PKG_VERSION:=1.45.0
+PKG_VERSION:=1.52.1
 
 PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://dist.libuv.org/dist/v$(PKG_VERSION)/
-PKG_HASH:=f5b07f65a1e8166e47983a7ed1f42fae0bee08f7458142170c37332fc676a748
+PKG_SOURCE_URL:=https://dist.libuv.org/dist/v$(PKG_VERSION)/
+PKG_HASH:=66d511b9e6e334c0e62279eb234fbfb2b3110b1479c09b95b44c7afca8cff9e7
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
