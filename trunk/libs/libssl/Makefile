@@ -1,16 +1,16 @@
 include $(ROOTDIR)/rules.mk
 
 PKG_NAME:=openssl
-PKG_VERSION:=3.0.15
+PKG_VERSION:=3.0.21
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.openssl.org/source/
-PKG_HASH:=23c666d0edf20f14249b3d8f0368acaee9ab585b09e1de82107c66e1f3ec9533
+PKG_HASH:=617e29af8e421f46649484a4937e48c685e47f46488167c982f88bc4ec1d522f
 
 include $(INCLUDE_DIR)/package.mk
 
 OPENSSL_CIPHERS = no-capieng no-cms no-rfc3779 no-seed \
-  no-ec2m no-err no-threads no-idea no-rc5 no-rmd160 \
+  no-ec2m no-err no-idea no-rc5 no-rmd160 \
   no-static-engine no-md2 no-sse2 no-dso no-ts no-mdc2 \
   no-cast no-whirlpool no-sctp no-srp no-ssl2 no-ssl3 \
   no-async no-blake2 no-hw-padlock no-aria no-hw \
@@ -29,6 +29,7 @@ CONFIGURE_CMD = ./Configure
 CONFIGURE_ARGS = \
 	linux-mips32 \
 	shared \
+	threads \
 	--prefix=$(STAGING_DIR) \
 	--openssldir=/etc/ssl \
 	$(OPENSSL_CIPHERS)
@@ -56,4 +57,3 @@ ifeq ($(CONFIG_FIRMWARE_INCLUDE_OPENSSL_EXE),y)
 	$(INSTALL_DIR) $(ROMFSDIR)/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/bin/openssl $(ROMFSDIR)/bin/
 endif
-
