@@ -1,0 +1,11 @@
+--- a/cmake/GetGitVersion.cmake
++++ b/cmake/GetGitVersion.cmake
+@@ -36,7 +36,7 @@ function(get_git_head var1)
+     )
+ 
+     if(${status})
+-      set(GIT_COMMIT "unknown")
++      set(GIT_COMMIT "")
+     endif()
+ 
+     message("-- Git Commit: ${GIT_COMMIT}")
