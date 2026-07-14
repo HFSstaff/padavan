@@ -167,6 +167,7 @@ static int get_token(char **string)
 
 		if(cur_size + 2 > size) {
 			char *tmp;
+			ptrdiff_t str_offset = str_ptr - str;
 
 			size = (cur_size + 1  + STR_SIZE) & ~(STR_SIZE - 1);
 
@@ -174,7 +175,7 @@ static int get_token(char **string)
 			if(tmp == NULL)
 				MEM_ERROR();
 
-			str_ptr = str_ptr - str + tmp;
+			str_ptr = tmp + str_offset;
 			str = tmp;
 		}
 

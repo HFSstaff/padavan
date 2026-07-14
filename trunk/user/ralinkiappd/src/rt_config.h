@@ -89,9 +89,6 @@ typedef enum _BOOLEAN {
 } BOOLEAN;
 
 
-/* BYTE Order */
-#define __BYTE_ORDER					__LITTLE_ENDIAN /* __BIG_ENDIAN */
-
 /* ReDefinition */
 #define NdisZeroMemory(__Dst, __Len)		memset(__Dst, 0, __Len)
 #define NdisFillMemory(__Dst, __Len, __Val)	memset(__Dst, __Val, __Len)

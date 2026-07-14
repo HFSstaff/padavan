@@ -22,6 +22,16 @@
 #include <asm/bitsperlong.h>
 #include <asm/sockios.h>
 
+/* Compatibility with older architecture headers used by this toolchain. */
+#ifndef SIOCGSTAMP_OLD
+#define SIOCGSTAMP_OLD		0x8906
+#endif
+#ifndef SIOCGSTAMPNS_OLD
+#define SIOCGSTAMPNS_OLD	0x8907
+#endif
+#undef SIOCGSTAMP
+#undef SIOCGSTAMPNS
+
 /* Linux-specific socket ioctls */
 #define SIOCINQ		FIONREAD
 #define SIOCOUTQ	TIOCOUTQ        /* output queue size (not sent + not acked) */

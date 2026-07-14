@@ -2,7 +2,7 @@
 # Traffic control configuration.
 # 
 
-menuconfig NET_SCHED
+config NET_SCHED
 	def_bool y
 	select NET_SCH_FIFO
 	select NET_SCH_FQ_CODEL

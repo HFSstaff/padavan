@@ -29,3 +29,14 @@ stamp-h1
 /images
 /stage
 /tmp
+
+# Source trees unpacked from versioned archives during package builds.
+/user/dogcom/dogcom-*/
+/user/minieap/minieap-*/
+/user/njit-client/njit8021xclient-*/
+/user/openssh/openssh-*/
+/user/vlmcsd/vlmcsd-*/
+/user/wireguard-tools/wireguard-tools-*/
+
+# Package binaries that are built in the source tree.
+/user/xupnpd/src/xupnpd

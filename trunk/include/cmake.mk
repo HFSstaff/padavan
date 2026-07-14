@@ -1,5 +1,13 @@
 cmake_bool = $(patsubst %,-D%:BOOL=$(if $($(1)),ON,OFF),$(2))
 
+CMAKE_HOST_VERSION := $(word 3,$(shell cmake --version 2>/dev/null))
+CMAKE_HOST_VERSION_MAJOR := $(firstword $(subst ., ,$(CMAKE_HOST_VERSION)))
+ifeq ($(shell test "$(CMAKE_HOST_VERSION_MAJOR)" -ge 4 2>/dev/null && echo y),y)
+  # CMake 4 removed compatibility with policy versions older than 3.5.
+  # Use 3.10 to configure legacy packages without CMake 4.2's deprecation warning.
+  CMAKE_OPTIONS += -DCMAKE_POLICY_VERSION_MINIMUM=3.10
+endif
+
 NINJA = ninja
 PKG_USE_NINJA ?= 0
 ifeq ($(PKG_USE_NINJA),1)
@@ -12,17 +20,17 @@ MAKE_PATH = $(firstword $(CMAKE_BINARY_SUBDIR) .)
 
 cmake_tool=$(shell command -v $(1))
 
-ifeq ($(CONFIG_CCACHE),)
- CMAKE_C_COMPILER_LAUNCHER:=
- CMAKE_CXX_COMPILER_LAUNCHER:=
- CMAKE_C_COMPILER:=$(call cmake_tool,$(TARGET_CC))
- CMAKE_CXX_COMPILER:=$(call cmake_tool,$(TARGET_CXX))
-else
+ifeq ($(CONFIG_CCACHE),y)
   CCACHE:=ccache
   CMAKE_C_COMPILER_LAUNCHER:=$(CCACHE)
   CMAKE_CXX_COMPILER_LAUNCHER:=$(CCACHE)
   CMAKE_C_COMPILER:=$(TARGET_CC_NOCACHE)
   CMAKE_CXX_COMPILER:=$(TARGET_CXX_NOCACHE)
+else
+ CMAKE_C_COMPILER_LAUNCHER:=
+ CMAKE_CXX_COMPILER_LAUNCHER:=
+ CMAKE_C_COMPILER:=$(call cmake_tool,$(TARGET_CC))
+ CMAKE_CXX_COMPILER:=$(call cmake_tool,$(TARGET_CXX))
 endif
 CMAKE_AR:=$(call cmake_tool,$(TARGET_AR))
 CMAKE_NM:=$(call cmake_tool,$(TARGET_NM))

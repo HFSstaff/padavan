@@ -1249,13 +1249,13 @@ int print_timestamp(FILE *fp)
 		char tshort[40];
 
 		strftime(tshort, sizeof(tshort), "%Y-%m-%dT%H:%M:%S", tm);
-		fprintf(fp, "[%s.%06ld] ", tshort, tv.tv_usec);
+		fprintf(fp, "[%s.%06ld] ", tshort, (long)tv.tv_usec);
 	} else {
 		char *tstr = asctime(tm);
 
 		tstr[strlen(tstr)-1] = 0;
 		fprintf(fp, "Timestamp: %s %ld usec\n",
-			tstr, tv.tv_usec);
+			tstr, (long)tv.tv_usec);
 	}
 
 	return 0;

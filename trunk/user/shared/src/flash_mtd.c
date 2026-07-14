@@ -36,7 +36,7 @@
 #endif
 
 struct mtd_info {
-	char dev[8];
+	char dev[32];
 	unsigned int size;
 	unsigned int erasesize;
 	unsigned int writesize;
@@ -77,7 +77,7 @@ static int
 mtd_dev_open(const char *mtd_part, int flags, struct mtd_info *p_mi)
 {
 	struct mtd_info_user miu;
-	char mtd_dev[16];
+	char mtd_dev[32];
 	int idx, fd;
 
 	idx = mtd_dev_idx(mtd_part);
@@ -94,7 +94,7 @@ mtd_dev_open(const char *mtd_part, int flags, struct mtd_info *p_mi)
 		return -1;
 	}
 
-	sprintf(p_mi->dev, "mtd%d", idx);
+	snprintf(p_mi->dev, sizeof(p_mi->dev), "mtd%d", idx);
 	p_mi->size = miu.size;
 	p_mi->erasesize = miu.erasesize;
 	p_mi->writesize = miu.writesize;
@@ -349,4 +349,3 @@ out_err:
 
 	return ret;
 }
-

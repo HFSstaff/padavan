@@ -25,7 +25,15 @@
 #include "include/ebtables_u.h"
 #include "include/ethernetdb.h"
 #include <stdio.h>
-// #include <netinet/ether.h>
+/*
+ * netinet/ether.h conflicts with the Linux UAPI Ethernet definitions pulled
+ * in by ebtables_u.h when building against musl.  Keep the compatible libc
+ * declarations local instead of compiling these calls with an implicit int
+ * return type.
+ */
+struct ether_addr;
+extern char *ether_ntoa(const struct ether_addr *);
+extern struct ether_addr *ether_aton(const char *);
 #include <string.h>
 #include <stdlib.h>
 #include <getopt.h>

@@ -34,8 +34,17 @@ if [ "$CONFIG_FIRMWARE_INCLUDE_ANTFS" = "y" ] ; then
 	cp -f "$antfs_dir/"antfs.ko "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/kernel/antfs"
 fi
 
-# call depmod
-$depmod_bin -ae -F System.map -b "${INSTALL_MOD_PATH}" -r ${KERNELRELEASE}
+# Newer kmod probes this metadata file, while Linux 4.4 does not generate it.
+# An empty file is sufficient and avoids a misleading warning.
+: > "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.builtin.modinfo"
+
+# call depmod.  -b already selects the target root; the old -r option was
+# removed from modern kmod and made this command fail without generating
+# modules.dep.
+if ! "$depmod_bin" -ae -F System.map -b "${INSTALL_MOD_PATH}" "${KERNELRELEASE}"; then
+	echo "depmod failed for ${KERNELRELEASE}"
+	exit 1
+fi
 
 # clear unneeded depmod files
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.alias"
@@ -48,6 +57,7 @@ rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.symbols.bin"
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.builtin"
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.builtin.bin"
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.builtin.alias.bin"
+rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.builtin.modinfo"
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/modules.order"
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/build"
 rm -f "${INSTALL_MOD_PATH}/lib/modules/${KERNELRELEASE}/source"

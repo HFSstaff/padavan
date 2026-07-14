@@ -32,6 +32,18 @@ ROMFSINST      = $(ROOTDIR)/tools/romfs-inst.sh
 TFTPDIR        = /tftpboot
 PATH          := $(if $(filter y,$(CONFIG_CCACHE)),$(CONFIG_CROSS_COMPILER_ROOT)/lib/ccache:,)$(CONFIG_CROSS_COMPILER_ROOT)/bin:$(PATH):$(ROOTDIR)/tools
 
+ifeq ($(CONFIG_CCACHE),y)
+CCACHE_CONFIG_DIR := $(strip $(subst ",,$(CONFIG_CCACHE_DIR)))
+ifeq ($(strip $(CCACHE_BASEDIR)),)
+CCACHE_BASEDIR := $(ROOTDIR)
+endif
+ifeq ($(strip $(CCACHE_DIR)),)
+CCACHE_DIR := $(if $(CCACHE_CONFIG_DIR),$(CCACHE_CONFIG_DIR),$(ROOTDIR)/.ccache)
+endif
+CCACHE_COMPILERCHECK ?= %compiler% -dumpmachine; %compiler% -dumpversion
+export CCACHE_BASEDIR CCACHE_DIR CCACHE_COMPILERCHECK
+endif
+
 VERSIONSTR     = $(CONFIG_VENDOR)/$(CONFIG_PRODUCT) Version $(VERSIONPKG)
 
 LINUXDIR       = $(CONFIG_LINUXDIR)

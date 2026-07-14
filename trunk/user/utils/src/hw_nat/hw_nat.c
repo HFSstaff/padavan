@@ -128,9 +128,9 @@ int main(int argc, char *argv[])
 
     int fd, method = -1;
     int i=0;
-    unsigned int entry_num;
+    unsigned int entry_num = 0;
     unsigned int debug;
-    unsigned int type;
+    unsigned int type = 0;
     unsigned int swit;
     struct hwnat_args *args;
     struct hwnat_tuple args2;

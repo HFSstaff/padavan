@@ -261,5 +261,6 @@ clean: $(patsubst %,%_clean,$(dir_y) $(dir_n) $(dir_))
 
 %_clean:
 	@echo "\033[37;42m CLEAN \033[0m\033[37;44m   $(@:_clean=)   \033[0m"
-	$(MAKE) -C $(@:_clean=) clean || true
-
+	@if [ -f "$(@:_clean=)/Makefile" ]; then \
+		$(MAKE) -C "$(@:_clean=)" clean || true; \
+	fi

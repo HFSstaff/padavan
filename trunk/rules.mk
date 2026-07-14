@@ -48,12 +48,18 @@ TARGET_LD:=$(TARGET_CROSS)ld.$(TARGET_LINKER)
 TARGET_CC_NOCACHE:=$(TARGET_CC)
 TARGET_CXX_NOCACHE:=$(TARGET_CXX)
 
-ifneq ($(CONFIG_CCACHE),)
+ifeq ($(CONFIG_CCACHE),y)
   TARGET_CC:= ccache $(TARGET_CC)
   TARGET_CXX:= ccache $(TARGET_CXX)
-  export CCACHE_BASEDIR:=$(TOPDIR)
-  export CCACHE_DIR:=$(if $(call qstrip,$(CONFIG_CCACHE_DIR)),$(call qstrip,$(CONFIG_CCACHE_DIR)),$(TOPDIR)/.ccache)
-  export CCACHE_COMPILERCHECK:=%compiler% -dumpmachine; %compiler% -dumpversion
+  CCACHE_CONFIG_DIR:=$(strip $(subst ",,$(CONFIG_CCACHE_DIR)))
+  ifeq ($(strip $(CCACHE_BASEDIR)),)
+    CCACHE_BASEDIR:=$(TOPDIR)
+  endif
+  ifeq ($(strip $(CCACHE_DIR)),)
+    CCACHE_DIR:=$(if $(CCACHE_CONFIG_DIR),$(CCACHE_CONFIG_DIR),$(TOPDIR)/.ccache)
+  endif
+  CCACHE_COMPILERCHECK?=%compiler% -dumpmachine; %compiler% -dumpversion
+  export CCACHE_BASEDIR CCACHE_DIR CCACHE_COMPILERCHECK
 endif
 
 TARGET_CONFIGURE_OPTS = \
