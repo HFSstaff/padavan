@@ -14,7 +14,11 @@ mkdev () {    # usage: mkdev name [bcu] major minor owner group mode
 		fi
 	fi
 	su="" ; [ -z "$FAKED_MODE" ] && su="sudo"
-	[ ! "$opt_n" ] && $su rm -f $1 && [ ! "$opt_d" ] && $su mknod $1 $2 $3 $4 && $su chown $5:$6 $1 && $su chmod $7 $1
+	# The firmware image is created with mksquashfs -all-root, and sudo
+	# mknod also creates root-owned nodes when this script is run directly.
+	# Avoid an otherwise redundant chown: uutils chown bypasses fakeroot's
+	# ownership emulation and fails on current Ubuntu/WSL hosts.
+	[ ! "$opt_n" ] && $su rm -f $1 && [ ! "$opt_d" ] && $su mknod $1 $2 $3 $4 && $su chmod $7 $1
 }
 
 cd $1
