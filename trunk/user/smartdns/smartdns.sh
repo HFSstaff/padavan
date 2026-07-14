@@ -10,6 +10,7 @@ smartdns_address_Conf="$storage_Path/smartdns_address.conf"
 smartdns_blacklist_Conf="$storage_Path/smartdns_blacklist-ip.conf"
 smartdns_whitelist_Conf="$storage_Path/smartdns_whitelist-ip.conf"
 smartdns_custom_Conf="$storage_Path/smartdns_custom.conf"
+smartdns_core_Path="/tmp/smartdns-core"
 dnsmasq_Conf="$storage_Path/dnsmasq/dnsmasq.conf"
 chn_Route="$storage_Path/chinadns/chnroute.txt"
 
@@ -428,7 +429,6 @@ Start_smartdns () {
     echo "$sdns_port" >> "$smartdns_Ini"
     #存疑
     rm -f /tmp/sdnsipset.conf
-    args=""
     logger -t "SmartDNS" "创建配置文件..."
     ipset -N smartdns hash:net >/dev/null
     Get_sdns_conf
@@ -441,21 +441,33 @@ Start_smartdns () {
     # 配置文件去重
     awk '!x[$0]++' "$smartdns_tmp_Conf" > "$smartdns_Conf"
     rm -f "$smartdns_tmp_Conf"
+    # Keep every SmartDNS option in a separate argv entry.
+    set -- -c "$smartdns_Conf"
     if [ "$sdns_auto_restart" = "1" ] ; then
-        args="$args -R"
+        set -- "$@" -R
     fi
     if [ "$sdns_coredump" = "1" ] ; then
-        args="$args -S"
-        # enable coredump, 默认值是 "ulimit -c 0"
-        ulimit -c unlimited >/dev/null 2>&1
+        set -- "$@" -S
+        # Run in the foreground from writable tmpfs. SmartDNS daemon mode
+        # changes cwd to the read-only root, where the default "core" pattern
+        # cannot be written. BusyBox uses 512-byte blocks: cap dumps at 4 MiB
+        # so they also fit the router's 8 MiB low-memory /tmp mode.
+        mkdir -p "$smartdns_core_Path"
+        chmod 700 "$smartdns_core_Path"
+        rm -f "$smartdns_core_Path"/core "$smartdns_core_Path"/core.*
+        ulimit -c 8192 >/dev/null 2>&1
+        logger -t "SmartDNS" "coredump 将写入 $smartdns_core_Path/core（上限 4 MiB）"
     fi
     # 通过检测配置文件是否变化，确定是否重启 dnsmasq 进程
     if [ "$dnsmasq_md5" != $(md5sum  "$dnsmasq_Conf" | awk '{ print $1 }') ] ; then
          /sbin/restart_dhcpd >/dev/null 2>&1
     fi
     # 启动 smartdns 进程
-    # "$smartdns_Bin" -f -c "$smartdns_Conf" "$args"  &>/dev/null &
-    "$smartdns_Bin" -c "$smartdns_Conf" "$args"
+    if [ "$sdns_coredump" = "1" ] ; then
+        (cd "$smartdns_core_Path" && exec "$smartdns_Bin" -f "$@") >/dev/null 2>&1 &
+    else
+        "$smartdns_Bin" "$@"
+    fi
     sleep 1
     smartdns_process=$(pidof smartdns | awk '{ print $1 }')
     if [ "$smartdns_process"x = x ] ; then
@@ -464,7 +476,11 @@ Start_smartdns () {
             logger -t "SmartDNS" "删除"$smartdns_Conf"中conf-file附加去广告设置，再次启动......"
             logger -t "SmartDNS" "若启动成功，则请检查相关去广告规则格式是否符合SmartDNS要求"
             sed -i '/conf-file /d' "$smartdns_Conf"
-            "$smartdns_Bin" -f -c "$smartdns_Conf" "$args"  &>/dev/null &
+            if [ "$sdns_coredump" = "1" ] ; then
+                (cd "$smartdns_core_Path" && exec "$smartdns_Bin" -f "$@") >/dev/null 2>&1 &
+            else
+                "$smartdns_Bin" -f "$@" >/dev/null 2>&1 &
+            fi
         fi
     fi
     sleep 1
@@ -488,21 +504,19 @@ Start_smartdns () {
 
 
 Stop_smartdns () {
-    # killall -9 smartdns >/dev/null 2>&1
-    PID=$(pidof smartdns | awk '{ print $1 }')
-    if [ "$PID"x != x ] ; then
-        kill -TERM "$PID"
-        if [ $? -ne 0 ]; then
-            logger -t "SmartDNS" "结束smartdns进程失败 ．．．"
-        fi
+    PIDS=$(pidof smartdns)
+    if [ "$PIDS"x != x ] ; then
+        # With -R, SmartDNS has both a monitor and a worker process. Stop both;
+        # killing only the first pid can make the monitor restart its worker.
+        kill -TERM $PIDS >/dev/null 2>&1
         LOOP=1
         while true; do
-            if [ ! -d "/proc/$PID" ]; then
+            if [ "$(pidof smartdns)"x = x ]; then
                 break;
             fi
 
             if [ $LOOP -gt 12 ]; then
-                kill -9 "$PID"
+                killall -9 smartdns >/dev/null 2>&1
                 logger -t "SmartDNS" "强制结束smartdns进程 ．．．"
                 break;
             fi

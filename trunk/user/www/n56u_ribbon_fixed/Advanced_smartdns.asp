@@ -858,7 +858,7 @@ function showMRULESList(){
 												</div>
 											</td>
 										</tr>
-                                        <tr> <th>异常自动重启(进程故障时，自动重启进程)
+                                        <tr> <th>异常自动重启(捕获进程崩溃后自动重启；不处理 OOM/SIGKILL)
                                         </th>
                                             <td>
                                                 <div class="main_itoggle">
@@ -872,7 +872,7 @@ function showMRULESList(){
                                                 </div>
                                             </td>
                                         </tr>
-                                        <tr> <th>生成coredump(进程故障时，生成coredump文件，用于调试定位)
+                                        <tr> <th>生成coredump(保存到 /tmp/smartdns-core/core，最大 4 MiB，重启后清除)
                                         </th>
                                             <td>
                                                 <div class="main_itoggle">
