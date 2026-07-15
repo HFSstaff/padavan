@@ -3099,16 +3099,25 @@ INT RTMPAPSetInformation(
 		break;
 
 	case OID_802_11R_R0KHID:
-		if (wrq->u.data.length <= FT_ROKH_ID_LEN)
+		if ((wrq->u.data.length == 0) ||
+			(wrq->u.data.length > FT_ROKH_ID_LEN))
 			Status  = -EINVAL;
 		else {
 			UCHAR apidx = pObj->ioctl_if;
+			PFT_CFG pFtCfg = &pAd->ApCfg.MBSSID[apidx].wdev.FtCfg;
 
-			Status = copy_from_user(pAd->ApCfg.MBSSID[apidx].wdev.FtCfg.FtR0khId, wrq->u.data.pointer, wrq->u.data.length);
-			pAd->ApCfg.MBSSID[apidx].wdev.FtCfg.FtR0khIdLen = wrq->u.data.length;
-			MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("Set::OID_802_11R_OID_802_11R_R0KHID(=%s) Len=%d\n",
-					 pAd->ApCfg.MBSSID[apidx].wdev.FtCfg.FtR0khId,
-					 pAd->ApCfg.MBSSID[apidx].wdev.FtCfg.FtR0khIdLen));
+			NdisZeroMemory(pFtCfg->FtR0khId, FT_ROKH_ID_LEN + 1);
+			if (copy_from_user(pFtCfg->FtR0khId, wrq->u.data.pointer,
+						   wrq->u.data.length)) {
+				NdisZeroMemory(pFtCfg->FtR0khId, FT_ROKH_ID_LEN + 1);
+				pFtCfg->FtR0khIdLen = 0;
+				Status = -EFAULT;
+			} else {
+				pFtCfg->FtR0khIdLen = wrq->u.data.length;
+				pFtCfg->FtR0khId[wrq->u.data.length] = '\0';
+				MTWF_LOG(DBG_CAT_CFG, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("Set::OID_802_11R_OID_802_11R_R0KHID(=%s) Len=%d\n",
+						 pFtCfg->FtR0khId, pFtCfg->FtR0khIdLen));
+			}
 		}
 
 		break;
@@ -3587,9 +3596,10 @@ INT RTMPAPSetInformation(
 							pObj->ioctl_if,
 							pMbss->SsidLen, pMbss->Ssid));
 					}
-				} else
+				} else {
 					Status = -EINVAL;
-					break;
+				}
+				break;
 				}
 			} else
 				Status = -EINVAL;
@@ -3605,16 +3615,22 @@ INT RTMPAPSetInformation(
 				return FALSE;
 			}
 
-			if (wrq->u.data.length < 65) {
-				Status = copy_from_user(pSecConfig->PSK,
-							wrq->u.data.pointer,
-							wrq->u.data.length);
-				pSecConfig->PSK[wrq->u.data.length] = '\0';
-			} else
-				pSecConfig->PSK[0] = '\0';
+			if (wrq->u.data.length > LEN_PSK) {
+				Status = -EINVAL;
+				break;
+			}
 
-			MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s: PSK = %s\n",
-				__func__, pSecConfig->PSK));
+			NdisZeroMemory(pSecConfig->PSK, LEN_PSK + 1);
+			if (copy_from_user(pSecConfig->PSK, wrq->u.data.pointer,
+						   wrq->u.data.length)) {
+				NdisZeroMemory(pSecConfig->PSK, LEN_PSK + 1);
+				Status = -EFAULT;
+				break;
+			}
+
+			pSecConfig->PSK[wrq->u.data.length] = '\0';
+			MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_TRACE,
+				("%s: PSK length = %d\n", __func__, wrq->u.data.length));
 #ifdef CONFIG_AP_SUPPORT
 #ifdef WSC_AP_SUPPORT
 			IF_DEV_CONFIG_OPMODE_ON_AP(pAd) {
@@ -3636,14 +3652,13 @@ INT RTMPAPSetInformation(
 #endif /* APCLI_SUPPORT */
 
 				if (pWscControl) {
-					NdisZeroMemory(pWscControl->WpaPsk, 64);
-					pWscControl->WpaPskLen = 0;
+					NdisZeroMemory(pWscControl->WpaPsk, LEN_PSK);
 					pWscControl->WpaPskLen = wrq->u.data.length;
-					Status = copy_from_user(pWscControl->WpaPsk,
-								wrq->u.data.pointer,
-								wrq->u.data.length);
-					MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("%s: PSK = %s\n",
-						__func__, pWscControl->WpaPsk));
+					NdisMoveMemory(pWscControl->WpaPsk, pSecConfig->PSK,
+							   pWscControl->WpaPskLen);
+					MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_TRACE,
+						("%s: WPS PSK length = %d\n", __func__,
+						 pWscControl->WpaPskLen));
 				}
 			}
 #endif /* WSC_AP_SUPPORT */
