@@ -103,9 +103,10 @@ VOID FT_FTIE_InsertKhIdSubIE(
 	}
 
 	/* The length of R0KHID must in range of 1 to 48 octects.*/
-	if ((SubId == FT_R0KH_ID) && ((KhIdLen > 48) && (KhIdLen < 1))) {
+	if ((SubId == FT_R0KH_ID) && ((KhIdLen > 48) || (KhIdLen < 1))) {
 		MTWF_LOG(DBG_CAT_PROTO, CATPROTO_FT, DBG_LVL_ERROR, ("(%s): Invalid R0KHID length (%d)\n",
 				 __func__, KhIdLen));
+		return;
 	}
 
 	MakeOutgoingFrame(pFrameBuf,		&TempLen,
@@ -190,4 +191,3 @@ VOID FT_InsertTimeoutIntervalIE(
 
 
 #endif /* DOT11R_FT_SUPPORT */
-
