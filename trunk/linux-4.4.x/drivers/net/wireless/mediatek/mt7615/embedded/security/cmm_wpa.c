@@ -3728,13 +3728,19 @@ BOOLEAN WPAParseEapolKeyData(
 					if (pKDE->DataType == KDE_GTK) {
 						PGTK_KDE pKdeGtk;
 
+						/* KDE Len includes the 4-byte OUI/type and 2-byte GTK control fields. */
+						if (pKDE->Len < 6) {
+							MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("ERROR: GTK KDE length is invalid (%d)\n", pKDE->Len));
+							return FALSE;
+						}
+
 						pKdeGtk = (PGTK_KDE) &pKDE->octet[0];
 						DefaultIdx = pKdeGtk->Kid;
 						/* Get GTK length - refer to IEEE 802.11i-2004 p.82 */
 						GTKLEN = pKDE->Len - 6;
 
-						if (GTKLEN < LEN_WEP64) {
-							MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("ERROR: GTK Key length is too short (%d)\n", GTKLEN));
+						if ((GTKLEN < LEN_WEP64) || (GTKLEN > LEN_MAX_GTK)) {
+							MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("ERROR: GTK Key length is invalid (%d)\n", GTKLEN));
 							return FALSE;
 						}
 
@@ -3766,7 +3772,11 @@ BOOLEAN WPAParseEapolKeyData(
 	} else if (!bWPA2 && MsgType == EAPOL_GROUP_MSG_1) {
 		DefaultIdx = GroupKeyIndex;
 		GTKLEN = KeyDataLength;
-		NdisMoveMemory(GTK, pMyKeyData, KeyDataLength);
+		if (GTKLEN > LEN_MAX_GTK) {
+			MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_ERROR, ("ERROR: GTK Key length is invalid (%d)\n", GTKLEN));
+			return FALSE;
+		}
+		NdisMoveMemory(GTK, pMyKeyData, GTKLEN);
 		MTWF_LOG(DBG_CAT_SEC, DBG_SUBCAT_ALL, DBG_LVL_TRACE, ("GTK without KDE, DefaultKeyID=%d, KeyLen=%d\n", DefaultIdx, GTKLEN));
 	}
 
@@ -5996,4 +6006,3 @@ VOID WPAHandshakeMsgRetryExec(
 	}
 
 }
-
