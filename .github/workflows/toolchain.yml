@@ -11,7 +11,7 @@ jobs:
       matrix:
         target: [mipsel-linux-uclibc, mipsel-linux-musl]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
       - name: Prepare
         run: |
           sudo apt update
@@ -28,11 +28,11 @@ jobs:
           CT_TARGET: ${{ matrix.target }}
           CT_VERSION: 1.26.0
         working-directory: toolchain
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v7
         with:
-          name: toolchain
+          name: toolchain-${{ matrix.target }}
           path: toolchain/${{ matrix.target }}.tar.xz
-      - uses: svenstaro/upload-release-action@2.2.0
+      - uses: svenstaro/upload-release-action@2.11.5
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: toolchain/${{ matrix.target }}.tar.xz
